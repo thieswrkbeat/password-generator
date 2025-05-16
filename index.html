@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Password Generator</title>
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="inner-content">
+        <div class="password" id="password"></div>
+        <div class="controls" id="controlBox"></div>
+            <form id="controls">
+
+                <label for="letters" class="toggle">
+                    Buchstaben
+                    <input type="checkbox" name="letters" id="letters" 
+                    value="letters" checked="true">
+                    <span class="roundButton"></span>
+                </label>
+
+                <label for="numbers" class="toggle">
+                    Nummern
+                    <input type="checkbox" name="numbers" id="numbers" 
+                    value="numbers" checked="true">
+                    <span class="roundButton"></span>
+                </label>
+
+                <label for="specialCharacters" class="toggle">
+                    Sonderzeichen
+                    <input type="checkbox" name="specialCharacters" id="specialCharacters" 
+                    value="specialCharacters" checked="true">
+                    <span class="roundButton"></span>
+                </label>
+
+                <label for="lockedSpecialCharacters" class="toggle">
+                    gesperrte Sonderzeichen
+                    <input type="checkbox" name="lockedSpecialCharacters" id="lockedSpecialCharacters" 
+                    value="lockedSpecialCharacters">
+                    <span class="roundButton"></span>
+                </label>
+
+                <input type="range" min="8" max="60" value="45" name="lenght" id="lenght">
+                <div class="lenght-value">
+                    <span>Länge</span>
+                    <span id="lenght-value">45</span>
+                </div>
+
+                <button type="submit">Passwort Generieren</button>
+
+            </form>
+        </div>
+    </div>
+    
+</body>
+</html>
