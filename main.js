@@ -1,96 +1,64 @@
-import { PasswordGenerator } from "./generatepassword.js";
-
 let currentPassword = '';
-const controlsContainer = document.querySelector('#controls');
+let clipboardState = false;
+
 const passwordContainer = document.querySelector('#password');
-const lengthContainer = document.querySelector('#length-value');
-const passwordGenerator = new PasswordGenerator();
-
-const getFormValues = (event) => {
-  const controls = event.currentTarget.elements;
-  if (!controls) {
-    console.error('No form elements found!');
-    return {};
-  }
-
-  let controlValues = {};
-
-  for (let i = 0; i < controls.length; i++) {
-    const element = controls[i];
-    if (!element.name) continue;
-
-    if (element.type === 'checkbox') {
-      controlValues[element.name] = element.checked;
-    } else if (
-      element.type === 'range' || 
-      element.type === 'text' || 
-      element.type === 'number'
-    ) {
-      controlValues[element.name] = element.value;
-    }
-  }
-
-  return controlValues;
-};
-
-function animatePassword(passwordString) {
-  if (typeof passwordString !== 'string') {
-    console.error('Parameter ist kein String');
-    return;
-  }
-
-  // Beispielanimation - hier kannst du beliebige Effekte hinzufügen
-  passwordString.split('').forEach((char, index) => {
-    console.log(`Zeichen ${index}: ${char}`);
-  });
-
-  // "Kopieren" Button erzeugen
-  const existingCopyed = document.querySelector('#copyed');
-  if (existingCopyed) existingCopyed.remove();
-
-  const copyed = document.createElement('div');
-  copyed.textContent = 'Kopieren';
-  copyed.id = 'copyed';
-  copyed.className = 'copyed';
-
-  copyed.style.cursor = 'pointer';
-  copyed.addEventListener('click', () => {
-    navigator.clipboard.writeText(passwordString)
-      .then(() => alert('Passwort kopiert!'))
-      .catch(() => alert('Kopieren fehlgeschlagen!'));
-  });
-
-  passwordContainer.appendChild(copyed);
-}
-
-const setCurrentPassword = (config) => {
-  config.length = parseInt(config.length, 10) || 45;
-
-  currentPassword = passwordGenerator.getPassword(config);
-
-  passwordContainer.textContent = currentPassword;
-  lengthContainer.textContent = config.length;
-
-  animatePassword(currentPassword);
-};
-
-// Event Listener für Formular (submit und change)
-controlsContainer.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const config = getFormValues(event);
-  setCurrentPassword(config);
-});
-
-controlsContainer.addEventListener('change', (event) => {
-  event.preventDefault();
-  const config = getFormValues(event);
-  setCurrentPassword(config);
-});
-
-// Slider - Wertanzeige synchronisieren
 const lengthSlider = document.querySelector('#length');
 const lengthDisplay = document.querySelector('#length-value');
+const controlsForm = document.querySelector('#controls');
 
+// Simpler Passwort-Generator
+const generatePassword = (length = 45) => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
+// Länge live aktualisieren
 lengthSlider.addEventListener('input', () => {
   lengthDisplay.textContent = lengthSlider.value;
 });
+
+// Passwort generieren
+controlsForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const length = parseInt(lengthSlider.value, 10);
+  currentPassword = generatePassword(length);
+  updatePasswordDisplay();
+});
+
+// Kopieren-Funktion
+const copyToClipboard = () => {
+  if (clipboardState || !currentPassword) return;
+
+  clipboardState = true;
+  navigator.clipboard.writeText(currentPassword).then(() => {
+    const cta = document.querySelector('#copyed');
+    if (cta) {
+      cta.classList.add('copyed-done');
+      cta.textContent = 'Passwort kopiert!';
+      setTimeout(() => {
+        cta.classList.remove('copyed-done');
+        cta.textContent = 'Kopieren';
+        clipboardState = false;
+      }, 1500);
+    }
+  });
+};
+
+// Anzeige aktualisieren
+const updatePasswordDisplay = () => {
+  passwordContainer.innerHTML = ''; // leeren
+  const pwText = document.createElement('div');
+  pwText.textContent = currentPassword;
+  passwordContainer.appendChild(pwText);
+
+  const copyButton = document.createElement('div');
+  copyButton.id = 'copyed';
+  copyButton.className = 'copyed';
+  copyButton.textContent = 'Kopieren';
+  copyButton.addEventListener('click', copyToClipboard);
+  passwordContainer.appendChild(copyButton);
+};

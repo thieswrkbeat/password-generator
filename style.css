@@ -29,6 +29,26 @@ html, body {
     flex-direction: column;
 }
 
+.password {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.copyed {
+    text-align: center;
+    color: white;
+    font-size: 1.6rem;
+    margin: 5rem 0 0 0;
+    cursor: pointer;
+}
+
+.copyed.copyed-done {
+    animation: copyed-done 500ms forwards;
+}
+
 .controls {
     width: 100%;
     display: flex;
@@ -159,4 +179,16 @@ input:checked + .roundButton::before {
     padding: 1rem;
     flex-grow: 1;
     box-sizing: border-box;
+}
+
+@keyframes copyed-done {
+    0% {
+        color: white;
+    }
+    50% {
+        color: var(--prime);
+    }
+    100% {
+        color: white
+    }
 }
