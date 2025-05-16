@@ -13,10 +13,9 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     font-size: 10px;
-    overflow-x: hidden;
-    overflow-y: hidden;
+    overflow: hidden; /* Scroll auf Body verhindern */
 }
 
 .wrapper {
@@ -27,6 +26,15 @@ html, body {
     padding: 1rem;
     display: flex;
     flex-direction: column;
+    padding-bottom: 10rem;
+}
+
+.inner-content {
+    padding: 1rem;
+    flex-grow: 1;
+    box-sizing: border-box;
+    overflow-y: auto;          /* Scrollen im inner-content */
+    padding-bottom: 12rem;    /* Platz schaffen für fixe controls */
 }
 
 .password {
@@ -49,11 +57,48 @@ html, body {
     animation: copyed-done 500ms forwards;
 }
 
-.controls {
-    width: 100%;
+.characters {
+    width: 70%;
+    height: 80%;
+    padding: 10%;
     display: flex;
-    padding: 2rem;
     flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.character {
+    font-size: 3rem;
+    color: white;
+    height: 6rem;
+    width: 4.5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--secondLight);
+    border-radius: 1rem;
+    padding: 1rem;
+    margin: 1rem 0.5rem 1rem 0.5rem;
+    transition: all 550ms;
+}
+
+/* FIXED Controls unten am Viewport */
+.controls {
+    position: fixed;              /* fixiert unten */
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 900px;            /* maximale Breite für großen Bildschirm */
+    background-color: var(--second);
+    padding: 2rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+    z-index: 10;                 /* über anderem Content */
 }
 
 form {
@@ -173,12 +218,6 @@ input:checked + .roundButton::before {
     left: 0.5rem;
     bottom: 0.4rem;
     transition: all 0.3s;
-}
-
-.inner-content {
-    padding: 1rem;
-    flex-grow: 1;
-    box-sizing: border-box;
 }
 
 @keyframes copyed-done {

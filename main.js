@@ -1,64 +1,125 @@
-let currentPassword = '';
+import { PasswordGenerator } from './generatepassword.js';
+
+let currentPassword = [];
 let clipboardState = false;
 
+const controlsContainer = document.querySelector('#controls');
 const passwordContainer = document.querySelector('#password');
-const lengthSlider = document.querySelector('#length');
-const lengthDisplay = document.querySelector('#length-value');
-const controlsForm = document.querySelector('#controls');
+const lengthContainer = document.querySelector('#length-value');
+const passwordGenerator = new PasswordGenerator();
 
-// Simpler Passwort-Generator
-const generatePassword = (length = 45) => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
-  let password = '';
-  for (let i = 0; i < length; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
+const getRandomCharacter = () => {
+	return Math.random().toString(16).substr(2, 1);
 };
 
-// Länge live aktualisieren
-lengthSlider.addEventListener('input', () => {
-  lengthDisplay.textContent = lengthSlider.value;
-});
+const getRandomNumber = (min, max) => {
+	return Math.floor(Math.random() * (max - min) + min);
+};
 
-// Passwort generieren
-controlsForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const length = parseInt(lengthSlider.value, 10);
-  currentPassword = generatePassword(length);
-  updatePasswordDisplay();
-});
+const animatePassword = () => {
+	passwordContainer.innerHTML = '';
+	const passwordElements = document.createElement('div');
+	passwordElements.setAttribute('class', 'characters');
 
-// Kopieren-Funktion
+	currentPassword.forEach((character, index) => {
+		const characterElement = document.createElement('div');
+		characterElement.setAttribute('class', 'character');
+		characterElement.setAttribute('id', `character-${index}`);
+		characterElement.setAttribute('data-character', character);
+        passwordContainer.innerHTML = '';
+		passwordElements.appendChild(characterElement);
+	});
+
+	passwordContainer.appendChild(passwordElements);
+
+	const copyed = document.createElement('div');
+	copyed.innerHTML = 'Kopieren';
+	copyed.setAttribute('id', 'copyed');
+	copyed.setAttribute('class', 'copyed');
+	passwordContainer.appendChild(copyed);
+
+	document.querySelectorAll('.character').forEach((char) => {
+		animateCharacter(char);
+	});
+};
+
+const animateCharacter = (element) => {
+	setTimeout(() => {
+		element.classList.add('show');
+		setTimeout(() => {
+			element.classList.add('animate');
+			const maxTicker = getRandomNumber(5, 15);
+			let ticker = 0;
+			const letterAnimation = setInterval(() => {
+				element.innerHTML = getRandomCharacter();
+				if (ticker === maxTicker) {
+					element.classList.remove('animate');
+					element.classList.add('done');
+					element.innerHTML = element.dataset.character;
+					clearInterval(letterAnimation);
+				}
+				ticker++;
+			}, 50);
+		}, getRandomNumber(0, 150));
+	}, getRandomNumber(0, 150));
+};
+
 const copyToClipboard = () => {
-  if (clipboardState || !currentPassword) return;
-
-  clipboardState = true;
-  navigator.clipboard.writeText(currentPassword).then(() => {
-    const cta = document.querySelector('#copyed');
-    if (cta) {
-      cta.classList.add('copyed-done');
-      cta.textContent = 'Passwort kopiert!';
-      setTimeout(() => {
-        cta.classList.remove('copyed-done');
-        cta.textContent = 'Kopieren';
-        clipboardState = false;
-      }, 1500);
-    }
-  });
+	if (!clipboardState) {
+		clipboardState = true;
+		navigator.clipboard.writeText(currentPassword.join('')).then(() => {
+			const cta = document.querySelector('#copyed');
+			cta.classList.add('copyed-done');
+			cta.innerHTML = 'Passwort kopiert!';
+			setTimeout(() => {
+				cta.classList.remove('copyed-done');
+				clipboardState = false;
+			}, 500);
+		});
+	}
 };
 
-// Anzeige aktualisieren
-const updatePasswordDisplay = () => {
-  passwordContainer.innerHTML = ''; // leeren
-  const pwText = document.createElement('div');
-  pwText.textContent = currentPassword;
-  passwordContainer.appendChild(pwText);
-
-  const copyButton = document.createElement('div');
-  copyButton.id = 'copyed';
-  copyButton.className = 'copyed';
-  copyButton.textContent = 'Kopieren';
-  copyButton.addEventListener('click', copyToClipboard);
-  passwordContainer.appendChild(copyButton);
+const setCurrentPassword = (controls) => {
+	currentPassword = passwordGenerator.getPassword(controls).split('');
+	animatePassword();
 };
+
+const getFormValues = ($event) => {
+	let controlValues = {};
+	Object.keys($event.currentTarget.elements).forEach((key) => {
+		let element = $event.currentTarget.elements[key];
+		if (element.type === 'checkbox') {
+			controlValues[element.name] = element.checked;
+		}
+		if (element.type === 'range') {
+			controlValues[element.name] = +element.value;
+			lengthContainer.innerHTML = +element.value;
+		}
+	});
+	return controlValues;
+};
+
+setCurrentPassword({
+	length: 45,
+	specialCharacters: true,
+	numbers: true,
+	letters: true,
+	lockedSpecialCharacters: false,
+});
+
+passwordContainer.addEventListener('click', copyToClipboard);
+
+controlsContainer.addEventListener('submit', ($event) => {
+	$event.preventDefault();
+	setCurrentPassword(getFormValues($event));
+});
+
+controlsContainer.addEventListener('change', ($event) => {
+	$event.preventDefault();
+	setCurrentPassword(getFormValues($event));
+});
+
+controlsContainer.addEventListener('input', ($event) => {
+	$event.preventDefault();
+	getFormValues($event);
+});
